@@ -1,0 +1,188 @@
+# Pre-commit hooks configuration
+# 安装: pip install pre-commit && pre-commit install
+
+repos:
+  # 基础检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        description: 删除行尾空白字符
+      - id: end-of-file-fixer
+        description: 确保文件以换行符结尾
+      - id: check-yaml
+        description: 检查YAML文件语法
+      - id: check-json
+        description: 检查JSON文件语法
+      - id: check-toml
+        description: 检查TOML文件语法
+      - id: check-xml
+        description: 检查XML文件语法
+      - id: check-added-large-files
+        description: 防止添加大文件
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+        description: 检查合并冲突标记
+      - id: check-case-conflict
+        description: 检查文件名大小写冲突
+      - id: check-symlinks
+        description: 检查符号链接
+      - id: destroyed-symlinks
+        description: 检查损坏的符号链接
+      - id: mixed-line-ending
+        description: 检查混合行结束符
+      - id: check-executables-have-shebangs
+        description: 检查可执行文件是否有shebang
+      - id: check-shebang-scripts-are-executable
+        description: 检查有shebang的脚本是否可执行
+
+  # Python代码格式化
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        description: Python代码格式化
+        language_version: python3
+        args: [--line-length=88]
+
+  # Python导入排序
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        description: Python导入排序
+        args: [--profile=black, --line-length=88]
+
+  # Python代码风格检查
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        description: Python代码风格检查
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
+          - flake8-comprehensions
+          - flake8-simplify
+
+  # Python类型检查
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        description: Python类型检查
+        args: [--ignore-missing-imports, --no-strict-optional]
+        additional_dependencies: [types-requests, types-PyYAML]
+
+  # Python安全检查
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        description: Python安全检查
+        args: [-r, ., -f, json, -o, bandit-report.json]
+        exclude: ^tests/
+
+  # Python依赖安全检查
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        description: Python依赖安全检查
+
+  # Dockerfile检查
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        description: Dockerfile最佳实践检查
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # Shell脚本检查
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        description: Shell脚本检查
+        args: [-e, SC1091, -e, SC2034]
+
+  # Markdown检查
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        description: Markdown格式检查
+        args: [--fix]
+        exclude: ^CHANGELOG.md$
+
+  # 提交信息检查
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        description: 检查提交信息格式
+        stages: [commit-msg]
+        args: [--strict]
+
+  # 密钥检查
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        description: 检测代码中的密钥
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json
+
+  # 本地自定义钩子
+  - repo: local
+    hooks:
+      # 检查Python文档字符串
+      - id: check-docstrings
+        name: Check Python docstrings
+        entry: python -c "import ast, sys; [sys.exit(1) for f in sys.argv[1:] if not any(ast.get_docstring(node) for node in ast.walk(ast.parse(open(f).read())) if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)))]"
+        language: system
+        files: \.py$
+        exclude: ^(tests/|scripts/)
+
+      # 检查TODO注释
+      - id: check-todos
+        name: Check for TODO comments
+        entry: bash -c 'if grep -r "TODO\|FIXME\|XXX" --include="*.py" --include="*.js" --include="*.md" .; then echo "Found TODO/FIXME/XXX comments. Please resolve them before committing."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # 检查调试代码
+      - id: check-debug-code
+        name: Check for debug code
+        entry: bash -c 'if grep -r "print(\|console\.log(\|debugger\|pdb\.set_trace" --include="*.py" --include="*.js" .; then echo "Found debug code. Please remove before committing."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # 检查文件大小
+      - id: check-file-size
+        name: Check file size
+        entry: bash -c 'find . -type f -size +1M -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" | while read file; do echo "Large file detected: $file"; done; if [ $(find . -type f -size +1M -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" | wc -l) -gt 0 ]; then exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+# 全局配置
+default_stages: [commit]
+fail_fast: false
+minimum_pre_commit_version: '3.0.0'
+
+# CI配置
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+    
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
