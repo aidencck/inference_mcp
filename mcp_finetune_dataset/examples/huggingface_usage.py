@@ -17,6 +17,35 @@ from huggingface_manager import HuggingFaceManager
 
 # 设置日志
 logging.basicConfig(level=logging.INFO)
+"""
+日志配置说明文档:
+
+1. 基础配置
+   - 默认级别: INFO
+   - 日志格式: 时间戳 - 记录器名称 - 级别 - 消息内容
+   - 时间戳格式: YYYY-MM-DD HH:MM:SS
+   - 输出方式: 同时输出到控制台和文件(huggingface_manager.log)
+
+2. 组件特定日志级别
+   - urllib3: WARNING (减少网络请求日志)
+   - git: WARNING (减少git操作日志)
+   - huggingface_hub: INFO (保留重要的hub交互信息)
+
+3. 环境变量控制
+   - DEBUG=1: 所有记录器设置为DEBUG级别
+   - PRODUCTION=1: 所有记录器设置为WARNING级别
+
+4. 日志文件位置
+   - 默认路径: ./huggingface_manager.log
+   - 文件编码: UTF-8
+
+5. 日志格式示例:
+   2024-03-15 10:30:45 - huggingface_manager - INFO - 开始上传模型
+"""
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 def example_upload_model():
