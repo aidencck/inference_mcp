@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  mcp-training:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mcp-finetune:latest
+    container_name: mcp-training-container
+    
+    # GPU支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # 环境变量
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/app
+      - HUGGINGFACE_HUB_CACHE=/app/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/.cache/transformers
+    
+    # 数据卷挂载
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./outputs:/app/outputs
+      - ./configs:/app/configs
+      - ./.cache:/app/.cache
+      - ./.temp:/app/.temp
+      - ./scripts:/app/scripts
+      - ./examples:/app/examples
+      - ./docs:/app/docs
+    
+    # 端口映射
+    ports:
+      - "8888:8888"  # Jupyter
+      - "8000:8000"  # Web服务
+      - "6006:6006"  # TensorBoard
+    
+    # 工作目录
+    working_dir: /app
+    
+    # 保持容器运行
+    tty: true
+    stdin_open: true
+    
+    # 网络模式
+    network_mode: bridge
+    
+    # 重启策略
+    restart: unless-stopped
+    
+    # 共享内存大小（用于多进程训练）
+    shm_size: '2gb'
+    
+    # 内存限制（可选）
+    # mem_limit: 16g
+    
+    # CPU限制（可选）
+    # cpus: '8.0'
+
+  # Jupyter服务（可选）
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    image: mcp-jupyter:latest
+    container_name: mcp-jupyter-container
+    
+    depends_on:
+      - mcp-training
+    
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=mcp-training-2024
+    
+    volumes:
+      - ./:/app
+      - ./.cache:/app/.cache
+    
+    ports:
+      - "8889:8888"
+    
+    working_dir: /app
+    
+    command: >
+      bash -c "pip install jupyterlab &&
+               jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root"
+    
+    restart: unless-stopped
+
+  # TensorBoard服务（可选）
+  tensorboard:
+    image: tensorflow/tensorflow:latest-gpu
+    container_name: mcp-tensorboard-container
+    
+    volumes:
+      - ./logs:/logs
+      - ./outputs:/outputs
+    
+    ports:
+      - "6007:6006"
+    
+    command: tensorboard --logdir=/logs --host=0.0.0.0 --port=6006
+    
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  cache_data:
+    driver: local
+  model_data:
+    driver: local

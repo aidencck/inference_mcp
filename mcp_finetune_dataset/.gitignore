@@ -1,0 +1,144 @@
+# 缓存目录
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 分发/打包
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PYTHON_ARGCOMPLETE_OK
+
+# PyInstaller
+*.manifest
+*.spec
+
+# 单元测试/覆盖率报告
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# 翻译
+*.mo
+*.pot
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx文档
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat调度文件
+celerybeat-schedule
+
+# SageMath解析文件
+*.sage.py
+
+# 环境
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder项目设置
+.spyderproject
+.spyproject
+
+# Rope项目设置
+.ropeproject
+
+# mkdocs文档
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# 项目特定
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# 模型和数据文件
+*.bin
+*.safetensors
+*.h5
+*.ckpt
+*.pth
+*.pt
+
+# 训练输出
+outputs/
+logs/
+checkpoints/
+runs/
+wandb/
+
+# 项目缓存和临时目录
+.cache/
+.temp/
+transformers_cache/
+hf_cache/
+models/
+downloads/
+
+# 临时文件
+temp/
+tmp/
+*.swp
+*.swo
+*~
+
+# Docker相关
+.env
+.env.*
+!.env.docker
+docker-compose.override.yml
+*.log
+
+# 容器数据卷
+data/
+volumes/

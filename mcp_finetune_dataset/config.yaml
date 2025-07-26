@@ -1,0 +1,76 @@
+# MCP微调配置文件
+
+# 模型配置
+model:
+  name: "Qwen/Qwen2-7B-Instruct"  # 基础模型
+  max_length: 2048                # 最大序列长度
+  device: "auto"                  # 设备配置
+
+# 训练配置
+training:
+  num_epochs: 3                   # 训练轮数
+  batch_size: 4                   # 批次大小
+  gradient_accumulation_steps: 4  # 梯度累积步数
+  learning_rate: 2e-5             # 学习率
+  warmup_steps: 100               # 预热步数
+  weight_decay: 0.01              # 权重衰减
+  fp16: true                      # 混合精度训练
+
+# 数据配置
+data:
+  train_file: "./data/mcp_tool_calls.jsonl"
+  validation_file: "./data/mcp_validation.jsonl"
+  num_train_samples: 500          # 训练样本数
+  num_val_samples: 100            # 验证样本数
+
+# 输出配置
+output:
+  model_dir: "./models/mcp_finetuned_model"
+  log_dir: "./logs"
+  save_steps: 500
+  logging_steps: 10
+
+# 工具配置
+tools:
+  enabled:
+    - web_search
+    - get_weather
+    - list_files
+    - write_file
+    - read_file
+    - calculate
+    - get_current_time
+
+# HuggingFace管理配置
+huggingface:
+  # 是否启用HuggingFace管理
+  enabled: true
+  
+  # 配置文件路径
+  config_file: "./configs/huggingface_config.yaml"
+  
+  # 仓库设置
+  repositories:
+    private: true
+    auto_create: true
+  
+  # 自动同步设置
+  auto_sync:
+    # 训练完成后自动上传
+    after_training: false
+    
+    # 上传内容
+    upload_items:
+      - model
+      - config
+      - results
+  
+  # 版本管理
+  versioning:
+    auto_tag: true
+    tag_format: "v{timestamp}"
+    
+  # 实验追踪
+  experiment_tracking:
+    enabled: true
+    auto_name: true

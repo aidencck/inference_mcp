@@ -1,0 +1,178 @@
+# HuggingFace模型管理配置文件
+
+# HuggingFace设置
+huggingface:
+  # 用户名（自动从token获取）
+  username: null
+  
+  # 访问令牌（建议通过环境变量HUGGINGFACE_TOKEN设置）
+  token: null
+  
+  # 仓库设置
+  repositories:
+    # 模型仓库名称模板
+    model_repo_template: "{username}/mcp-finetuned-model"
+    
+    # 配置仓库名称模板
+    config_repo_template: "{username}/mcp-training-configs"
+    
+    # 是否创建私有仓库
+    private: true
+    
+    # 仓库描述
+    model_description: "MCP (Model Context Protocol) fine-tuned model for tool calling"
+    config_description: "Training configurations and results for MCP fine-tuning experiments"
+  
+  # 上传设置
+  upload:
+    # 自动生成版本标签
+    auto_version_tag: true
+    
+    # 版本标签格式
+    version_tag_format: "v{timestamp}"  # 支持: {timestamp}, {date}, {time}
+    
+    # 实验名称格式
+    experiment_name_format: "experiment_{timestamp}"
+    
+    # 是否自动上传训练结果
+    auto_upload_results: true
+    
+    # 是否自动生成模型卡片
+    auto_generate_model_card: true
+    
+    # 提交信息模板
+    commit_message_template: "Upload MCP model {version} - {experiment}"
+  
+  # 下载设置
+  download:
+    # 默认下载目录
+    default_model_dir: "./downloads/models"
+    default_config_dir: "./downloads/configs"
+    
+    # 是否使用符号链接
+    use_symlinks: false
+    
+    # 是否启用断点续传
+    resume_download: true
+  
+  # 同步设置
+  sync:
+    # 是否在训练完成后自动同步
+    auto_sync_after_training: false
+    
+    # 同步内容
+    sync_items:
+      - model
+      - config
+      - results
+      - logs
+    
+    # 排除的文件模式
+    exclude_patterns:
+      - "*.tmp"
+      - "*.lock"
+      - "__pycache__"
+      - ".git"
+  
+  # 元数据设置
+  metadata:
+    # 模型标签
+    model_tags:
+      - mcp
+      - tool-calling
+      - fine-tuning
+      - conversational
+    
+    # 支持的语言
+    languages:
+      - zh
+      - en
+    
+    # 许可证
+    license: "apache-2.0"
+    
+    # 额外的模型卡片信息
+    model_card_extra:
+      library_name: "transformers"
+      pipeline_tag: "text-generation"
+      widget:
+        - text: "请帮我搜索人工智能的最新发展"
+          example_title: "工具调用示例"
+
+# 版本管理设置
+version_control:
+  # 是否启用语义化版本控制
+  semantic_versioning: true
+  
+  # 版本号格式 (major.minor.patch)
+  version_format: "{major}.{minor}.{patch}"
+  
+  # 自动递增规则
+  auto_increment:
+    # 配置变更时递增minor版本
+    config_change: "minor"
+    
+    # 模型架构变更时递增major版本
+    architecture_change: "major"
+    
+    # 其他变更递增patch版本
+    other_change: "patch"
+  
+  # 版本标签前缀
+  tag_prefix: "v"
+  
+  # 是否创建发布说明
+  create_release_notes: true
+
+# 实验追踪设置
+experiment_tracking:
+  # 是否启用实验追踪
+  enabled: true
+  
+  # 实验元数据字段
+  metadata_fields:
+    - experiment_name
+    - timestamp
+    - model_name
+    - base_model
+    - training_params
+    - data_params
+    - evaluation_results
+    - hardware_info
+    - git_commit
+  
+  # 是否自动记录Git信息
+  track_git_info: true
+  
+  # 是否自动记录硬件信息
+  track_hardware_info: true
+
+# 备份设置
+backup:
+  # 是否启用自动备份
+  enabled: true
+  
+  # 备份频率（训练步数）
+  backup_frequency: 1000
+  
+  # 保留的备份数量
+  max_backups: 5
+  
+  # 备份存储位置
+  backup_location: "huggingface"  # 可选: local, huggingface, both
+
+# 通知设置
+notifications:
+  # 是否启用通知
+  enabled: false
+  
+  # 通知事件
+  events:
+    - training_complete
+    - upload_complete
+    - error_occurred
+  
+  # 通知方式（预留扩展）
+  methods:
+    - email
+    - webhook
